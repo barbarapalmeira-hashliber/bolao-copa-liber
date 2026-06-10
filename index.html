@@ -53,6 +53,7 @@
         .rule-item { display: flex; align-items: center; gap: 10px; }
         .rule-item i { color: var(--liber-orange); }
         .loading { font-size: 1.2rem; text-align: center; padding: 40px; color: var(--text-muted); grid-column: span 12; }
+        .error-box { background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; padding: 20px; border-radius: 12px; text-align: left; max-width: 600px; margin: 20px auto; font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -60,7 +61,7 @@
     <header>
         <div class="header-title">
             <h1>Bolão Líber 2026</h1>
-            <p><i class="fa-regular fa-calendar-days"></i> Conectado ao Google Sheets Oficial</p>
+            <p><i class="fa-regular fa-calendar-days"></i> Sincronizado ao Google Sheets Corporativo</p>
         </div>
         <div class="logo-container"><img src="https://i.ibb.co/nRL7f0T/logo-liber.png" alt="Líber Logo"></div>
     </header>
@@ -149,8 +150,8 @@
     </div>
 
     <script>
-        // Link convertido de pubhtml para pub?output=csv para que o código leia os dados brutos
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?output=csv";
+        // Link exato e verificado da aba "Base de pessoas" em formato CSV
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?gid=1105023004&single=true&output=csv";
 
         function switchTab(evt, phaseId) {
             const tabContents = document.getElementsByClassName("tab-content");
@@ -161,22 +162,54 @@
             evt.currentTarget.classList.add("active");
         }
 
+        // Normalizador inteligente de cabeçalhos (remove espaços, acentos e caixa alta)
+        function normalizeKey(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                      .trim()
+                      .normalize("NFD")
+                      .replace(/[\u0300-\u036f]/g, "")
+                      .replace(/\s+/g, ' ');
+        }
+
+        // Separador avançado de CSV que respeita aspas de textos
+        function splitCSVLine(line, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === delimiter && !inQuotes) {
+                    result.push(current.trim().replace(/^"|"$/g, ''));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"|"$/g, ''));
+            return result;
+        }
+
         function parseCSV(text) {
-            const lines = text.split(/\r?\n/);
+            const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
             if (lines.length === 0) return [];
+            
             const delimiter = lines[0].includes(';') ? ';' : ',';
-            const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+            const rawHeaders = splitCSVLine(lines[0], delimiter);
+            const normalizedHeaders = rawHeaders.map(normalizeKey);
             
             const result = [];
             for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                const columns = lines[i].split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
-                if (columns.length < headers.length) continue;
+                const columns = splitCSVLine(lines[i], delimiter);
                 const obj = {};
-                headers.forEach((header, index) => { obj[header] = columns[index]; });
+                normalizedHeaders.forEach((header, index) => {
+                    obj[header] = columns[index] || '';
+                });
                 result.push(obj);
             }
-            return result;
+            return { data: result, headers: normalizedHeaders };
         }
 
         function renderLockedPhase() {
@@ -192,7 +225,7 @@
                 const badgeClass = pos === 1 ? "top-1" : "top-5";
                 html += `<tr>
                     <td><div class="pos-badge ${badgeClass}">${pos}º</div></td>
-                    <td>${row['Nome da pessoa']}</td>
+                    <td>${row['nome da pessoa'] || 'Sem Nome'}</td>
                     <td style="text-align: right; font-weight: 700; color:var(--liber-blue);">${parseInt(row[columnName]) || 0} pts</td>
                 </tr>`;
             });
@@ -203,20 +236,32 @@
         async function loadDashboard() {
             try {
                 const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error("Não foi possível acessar a URL do Google Sheets.");
+                
                 const csvText = await response.text();
-                const players = parseCSV(csvText);
+                const parsed = parseCSV(csvText);
+                const players = parsed.data;
+                const foundHeaders = parsed.headers;
 
-                const validPlayers = players.filter(p => p['Nome da pessoa'] && p['Nome da pessoa'] !== 'undefined' && p['Nome da pessoa'] !== 'NaN');
+                // Validação de segurança dos campos essenciais mapeados
+                if (!foundHeaders.includes('nome da pessoa') || !foundHeaders.includes('total')) {
+                    throw new Error(`Colunas essenciais não detectadas. Certifique-se de que a aba correta possui as colunas 'Nome da pessoa' e 'Total'. <br><br><b>Colunas lidas:</b> [${foundHeaders.join(', ')}]`);
+                }
 
-                if(validPlayers.length === 0) throw new Error("Nenhum participante encontrado.");
+                const validPlayers = players.filter(p => p['nome da pessoa'] && p['nome da pessoa'] !== 'undefined' && p['nome da pessoa'] !== 'NaN');
 
-                validPlayers.forEach(p => p.Total = parseInt(p.Total) || 0);
-                const rankingGeral = [...validPlayers].sort((a, b) => b.Total - a.Total);
+                if(validPlayers.length === 0) throw new Error("Nenhum participante válido foi encontrado nas linhas da planilha.");
 
-                document.getElementById('kpi-leader-name').innerText = rankingGeral[0]['Nome da pessoa'];
-                document.getElementById('kpi-leader-score').innerText = rankingGeral[0].Total + " pts";
+                // Converte totais para inteiros e ordena o ranking geral
+                validPlayers.forEach(p => p.total = parseInt(p.total) || 0);
+                const rankingGeral = [...validPlayers].sort((a, b) => b.total - a.total);
+
+                // Popular KPIs principais
+                document.getElementById('kpi-leader-name').innerText = rankingGeral[0]['nome da pessoa'];
+                document.getElementById('kpi-leader-score').innerText = rankingGeral[0].total + " pts";
                 document.getElementById('kpi-total-players').innerText = rankingGeral.length + " Integrantes";
 
+                // Montar HTML do Top 5 Geral
                 let top5Html = "";
                 for(let i=0; i < Math.min(5, rankingGeral.length); i++) {
                     const row = rankingGeral[i];
@@ -225,12 +270,13 @@
                     const leaderClass = pos === 1 ? ' class="highlight-leader"' : '';
                     top5Html += `<tr${leaderClass}>
                         <td><div class="pos-badge ${badgeClass}">${pos}º</div></td>
-                        <td>${row['Nome da pessoa']}</td>
-                        <td style="text-align: right;"><span class="score-pill">${row.Total}</span></td>
+                        <td>${row['nome da pessoa']}</td>
+                        <td style="text-align: right;"><span class="score-pill">${row.total}</span></td>
                     </tr>`;
                 }
                 document.getElementById('top5-table-body').innerHTML = top5Html;
 
+                // Montar HTML dos 5 Lanternas
                 let lanternasHtml = "";
                 const totalP = rankingGeral.length;
                 for(let i = Math.max(0, totalP - 5); i < totalP; i++) {
@@ -238,35 +284,45 @@
                     const pos = i + 1;
                     lanternasHtml += `<tr>
                         <td><div class="pos-badge lanterna">${pos}º</div></td>
-                        <td>${row['Nome da pessoa']}</td>
-                        <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">${row.Total}</span></td>
+                        <td>${row['nome da pessoa']}</td>
+                        <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">${row.total}</span></td>
                     </tr>`;
                 }
                 document.getElementById('lanternas-table-body').innerHTML = lanternasHtml;
 
+                // Processar as abas dinamicamente com base nos cabeçalhos normalizados
                 const phases = {
-                    'rodada1': 'Rodada 01', 'rodada2': 'Rodada 02', 'rodada3': 'Rodada 03',
-                    'segundas': 'Segundas de finais', 'oitavas': 'Oitavas de finais',
-                    'quartas': 'Quartas de finais', 'semis': 'Semifinais', 'final': 'Final'
+                    'rodada1': 'rodada 01', 'rodada2': 'rodada 02', 'rodada3': 'rodada 03',
+                    'segundas': 'segundas de finais', 'oitavas': 'oitavas de finais',
+                    'quartas': 'quartas de finais', 'semis': 'semifinais', 'final': 'final'
                 };
 
                 for (const [tabId, colName] of Object.entries(phases)) {
-                    const maxScore = Math.max(...validPlayers.map(p => parseInt(p[colName]) || 0));
-                    
-                    if (maxScore > 0) {
-                        const phaseSorted = [...validPlayers].sort((a, b) => (parseInt(b[colName]) || 0) - (parseInt(a[colName]) || 0)).slice(0, 5);
-                        document.getElementById(tabId).innerHTML = renderActivePhase(phaseSorted, colName);
+                    if (foundHeaders.includes(colName)) {
+                        const maxScore = Math.max(...validPlayers.map(p => parseInt(p[colName]) || 0));
+                        if (maxScore > 0) {
+                            const phaseSorted = [...validPlayers].sort((a, b) => (parseInt(b[colName]) || 0) - (parseInt(a[colName]) || 0)).slice(0, 5);
+                            document.getElementById(tabId).innerHTML = renderActivePhase(phaseSorted, colName);
+                        } else {
+                            document.getElementById(tabId).innerHTML = renderLockedPhase();
+                        }
                     } else {
-                        document.getElementById(tabId).innerHTML = renderLockedPhase();
+                        document.getElementById(tabId).innerHTML = `<p style='color:var(--text-muted); padding:20px;'>Coluna '${colName}' não encontrada na planilha.</p>`;
                     }
                 }
 
+                // Exibe o painel completo
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'grid';
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading-state').innerHTML = `<span style="color:var(--liber-orange); font-weight:700;">❌ Erro ao carregar dados!</span><br><br>Verifique se a trava da Líber Capital foi desmarcada no painel de publicação do Google Sheets para a aba "Base de pessoas".`;
+                document.getElementById('loading-state').innerHTML = `
+                    <div class="error-box">
+                        <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
+                        <b>Erro ao processar dados do Google Sheets:</b><br>${error.message}
+                    </div>
+                `;
             }
         }
 
