@@ -1,4 +1,4 @@
-<index.html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -149,10 +149,9 @@
     </div>
 
     <script>
-        // 🛠️ COLE O SEU LINK DO GOOGLE SHEETS ENTRE AS ASPAS ABAIXO:
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pubhtml";
+        // Link convertido de pubhtml para pub?output=csv para que o código leia os dados brutos
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?output=csv";
 
-        // Função para alternar abas
         function switchTab(evt, phaseId) {
             const tabContents = document.getElementsByClassName("tab-content");
             for (let i = 0; i < tabContents.length; i++) { tabContents[i].classList.remove("active"); }
@@ -162,7 +161,6 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // Função para converter texto CSV em Lista de Objetos
         function parseCSV(text) {
             const lines = text.split(/\r?\n/);
             if (lines.length === 0) return [];
@@ -181,13 +179,11 @@
             return result;
         }
 
-        // Função para renderizar uma tabela travada por falta de pontos
         function renderLockedPhase() {
             return `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação da Elofy.</p>
-            <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>`;
+            <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>`;
         }
 
-        // Função para gerar HTML da tabela por fase ativa
         function renderActivePhase(data, columnName) {
             let html = `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;"><i class="fa-solid fa-circle-info"></i> Melhores da fase acumulado!</p>
             <table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align: right;">Pontos</th></tr></thead><tbody>`;
@@ -204,28 +200,23 @@
             return html;
         }
 
-        // Processamento Principal dos Dados
         async function loadDashboard() {
             try {
                 const response = await fetch(CSV_URL);
                 const csvText = await response.text();
                 const players = parseCSV(csvText);
 
-                // Filtrar linhas sem nome válido
                 const validPlayers = players.filter(p => p['Nome da pessoa'] && p['Nome da pessoa'] !== 'undefined' && p['Nome da pessoa'] !== 'NaN');
 
                 if(validPlayers.length === 0) throw new Error("Nenhum participante encontrado.");
 
-                // 1. Ordenar para o Ranking Geral
                 validPlayers.forEach(p => p.Total = parseInt(p.Total) || 0);
                 const rankingGeral = [...validPlayers].sort((a, b) => b.Total - a.Total);
 
-                // Preencher KPIs
                 document.getElementById('kpi-leader-name').innerText = rankingGeral[0]['Nome da pessoa'];
                 document.getElementById('kpi-leader-score').innerText = rankingGeral[0].Total + " pts";
                 document.getElementById('kpi-total-players').innerText = rankingGeral.length + " Integrantes";
 
-                // Montar Top 5 Geral
                 let top5Html = "";
                 for(let i=0; i < Math.min(5, rankingGeral.length); i++) {
                     const row = rankingGeral[i];
@@ -240,7 +231,6 @@
                 }
                 document.getElementById('top5-table-body').innerHTML = top5Html;
 
-                // Montar 5 Lanternas
                 let lanternasHtml = "";
                 const totalP = rankingGeral.length;
                 for(let i = Math.max(0, totalP - 5); i < totalP; i++) {
@@ -249,12 +239,11 @@
                     lanternasHtml += `<tr>
                         <td><div class="pos-badge lanterna">${pos}º</div></td>
                         <td>${row['Nome da pessoa']}</td>
-                        <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">{row.Total}</span></td>
+                        <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">${row.Total}</span></td>
                     </tr>`;
                 }
                 document.getElementById('lanternas-table-body').innerHTML = lanternasHtml;
 
-                // 2. Processar Abas de Fases
                 const phases = {
                     'rodada1': 'Rodada 01', 'rodada2': 'Rodada 02', 'rodada3': 'Rodada 03',
                     'segundas': 'Segundas de finais', 'oitavas': 'Oitavas de finais',
@@ -262,7 +251,6 @@
                 };
 
                 for (const [tabId, colName] of Object.entries(phases)) {
-                    // Verificar a maior pontuação daquela coluna para saber se ela já começou
                     const maxScore = Math.max(...validPlayers.map(p => parseInt(p[colName]) || 0));
                     
                     if (maxScore > 0) {
@@ -273,17 +261,15 @@
                     }
                 }
 
-                // Trocar telas de Loading para o Conteúdo
                 document.getElementById('loading-state').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'grid';
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading-state').innerHTML = `<span style="color:var(--liber-orange); font-weight:700;">❌ Erro ao carregar dados!</span><br><br>Verifique se o link do CSV foi colado corretamente dentro do código e se a trava da Líber Capital foi desmarcada no painel de publicação do Google Sheets.`;
+                document.getElementById('loading-state').innerHTML = `<span style="color:var(--liber-orange); font-weight:700;">❌ Erro ao carregar dados!</span><br><br>Verifique se a trava da Líber Capital foi desmarcada no painel de publicação do Google Sheets para a aba "Base de pessoas".`;
             }
         }
 
-        // Iniciar carregamento automático ao abrir a página
         window.onload = loadDashboard;
     </script>
 </body>
