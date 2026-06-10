@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Oficial - Bolão Líber Copa 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* CONFIGURAÇÕES GERAIS */
+        :root {
+            --liber-dark: #002654;
+            --liber-blue: #006aeb;
+            --liber-orange: #E65100;
+            --bg-light: #f8fafc;
+            --bg-body: #f1f5f9;
+            --text-main: #334155;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding-bottom: 60px;
+        }
+
+        /* HEADER & HERO AREA */
+        header {
+            background: linear-gradient(135deg, rgba(0, 38, 84, 0.95), rgba(0, 106, 235, 0.9)), 
+                        url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 40px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 5px solid var(--liber-orange);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .header-title h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .header-title p {
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .logo-container img {
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* CONTAINER PRINCIPAL */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 25px;
+        }
+
+        /* CARDS DE DESTAQUE (KPIs) */
+        .kpi-card {
+            grid-column: span 4;
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border-left: 6px solid var(--liber-blue);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card.leader {
+            border-left-color: var(--liber-orange);
+            background: linear-gradient(to right, #fff, #fffde6);
+        }
+
+        .kpi-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .kpi-card.leader .kpi-icon { background: #ffedd5; color: var(--liber-orange); }
+        .kpi-card.players .kpi-icon { background: #dbeafe; color: var(--liber-blue); }
+        .kpi-card.prize .kpi-icon { background: #dcfce7; color: #16a34a; }
+
+        .kpi-data h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-data .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--liber-dark);
+            margin: 2px 0;
+        }
+
+        .kpi-data .subtext {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* SEÇÕES GRID MAIORES */
+        .dashboard-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--liber-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+        }
+
+        /* COLUNAS DO LAYOUT */
+        .left-col { grid-column: span 5; display: flex; flex-direction: column; gap: 25px; }
+        .right-col { grid-column: span 7; }
+
+        /* TABELAS DE RANKING */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .ranking-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .ranking-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* CLASSES DE DESTAQUE DE POSIÇÃO */
+        .pos-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .top-1 { background-color: #fef3c7; color: #d97706; border: 1px solid #f59e0b; }
+        .top-5 { background-color: #e0f2fe; color: #0369a1; }
+        .lanterna { background-color: #fee2e2; color: #b91c1c; }
+
+        .score-pill {
+            background-color: var(--liber-dark);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        tr.highlight-leader td {
+            background-color: #fffbeb;
+            font-weight: 700;
+        }
+        tr.highlight-leader .score-pill {
+            background-color: var(--liber-orange);
+        }
+
+        /* ABAS INTERATIVAS (TABS) */
+        .tabs-header {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .tab-btn:hover {
+            background-color: #e2e8f0;
+            color: var(--liber-dark);
+        }
+
+        .tab-btn.active {
+            background-color: var(--liber-blue);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* REGRAS RÁPIDAS NO FOOTER CARD */
+        .rules-card {
+            grid-column: span 12;
+            background: linear-gradient(to right, #002654, #001530);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rules-grid {
+            display: flex;
+            gap: 40px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rule-item i { color: var(--liber-orange); font-size: 1.2rem; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 1024px) {
+            .kpi-card { grid-column: span 12; }
+            .left-col, .right-col { grid-column: span 12; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1>Bolão Líber 2026</h1>
+            <p><i class="fa-regular fa-calendar-days"></i> Atualizado em tempo real • Fase de Grupos</p>
+        </div>
+        <div class="logo-container">
+            <img src="https://i.ibb.co/nRL7f0T/logo-liber.png" alt="Líber Logo">
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+
+        <div class="kpi-card leader">
+            <div class="kpi-icon"><i class="fa-solid fa-crown"></i></div>
+            <div class="kpi-data">
+                <h3>Líder do Ranking</h3>
+                <div class="value">Patrícia Belmiro</div>
+                <div class="subtext"><span style="color:var(--liber-orange); font-weight:700;">450 pts</span> acumulados</div>
+            </div>
+        </div>
+
+        <div class="kpi-card players">
+            <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+            <div class="kpi-data">
+                <h3>Participantes ativos</h3>
+                <div class="value">88 Integrantes</div>
+                <div class="subtext">Engajamento total da Líber!</div>
+            </div>
+        </div>
+
+        <div class="kpi-card prize">
+            <div class="kpi-icon"><i class="fa-solid fa-gift"></i></div>
+            <div class="kpi-data">
+                <h3>Premiação da Fase</h3>
+                <div class="value">R$ 50,00</div>
+                <div class="subtext">Voucher Flash para o campeão da fase</div>
+            </div>
+        </div>
+
+        <div class="left-col">
+            
+            <div class="dashboard-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-trophy" style="color: gold;"></i> Liderança Geral (Top 5)
+                </div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Pos</th>
+                            <th>Nome</th>
+                            <th style="text-align: right;">Pontos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-leader">
+                            <td><div class="pos-badge top-1">1º</div></td>
+                            <td>Patrícia Belmiro da Silva</td>
+                            <td style="text-align: right;"><span class="score-pill">450</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge top-5">2º</div></td>
+                            <td>Ana Beatriz Guimarães</td>
+                            <td style="text-align: right;"><span class="score-pill">100</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge top-5">3º</div></td>
+                            <td>Pedrito Hildebrando</td>
+                            <td style="text-align: right;"><span class="score-pill">100</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge">4º</div></td>
+                            <td>Leonardo Daniel Vieira</td>
+                            <td style="text-align: right;"><span class="score-pill">0</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge">5º</div></td>
+                            <td>Henrique Guedes Ferreira</td>
+                            <td style="text-align: right;"><span class="score-pill">0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-heart-crack" style="color: var(--liber-orange);"></i> Zona de Recuperação (Lanternas)
+                </div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Pos</th>
+                            <th>Nome</th>
+                            <th style="text-align: right;">Pontos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="pos-badge lanterna">84º</div></td>
+                            <td>Yago Schonarth</td>
+                            <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">0</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge lanterna">85º</div></td>
+                            <td>Eric Ricardo Rossi</td>
+                            <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">0</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge lanterna">86º</div></td>
+                            <td>Raphael Souza Pinheiro</td>
+                            <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">0</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge lanterna">87º</div></td>
+                            <td>Railene Rocha Santa Barbara</td>
+                            <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">0</span></td>
+                        </tr>
+                        <tr>
+                            <td><div class="pos-badge lanterna">88º</div></td>
+                            <td>Mharianna Phaitter</td>
+                            <td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">0</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <div class="right-col class dashboard-section">
+            <div class="section-title">
+                <i class="fa-solid fa-chart-simple" style="color: var(--liber-blue);"></i> Top 5 Desempenho por Fase
+            </div>
+            
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab(event, 'rodada1')">Grupos - R1</button>
+                <button class="tab-btn" onclick="switchTab(event, 'rodada2')">Grupos - R2</button>
+                <button class="tab-btn" onclick="switchTab(event, 'rodada3')">Grupos - R3</button>
+                <button class="tab-btn" onclick="switchTab(event, 'segundas')">Segundas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'oitavas')">Oitavas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'quartas')">Quartas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'semis')">Semis</button>
+                <button class="tab-btn" onclick="switchTab(event, 'final')">Final</button>
+            </div>
+
+            <div id="rodada1" class="tab-content active">
+                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;"><i class="fa-solid fa-circle-info"></i> Dados reais baseados nos primeiros acertos tabulados!</p>
+                <table class="ranking-table">
+                    <thead>
+                        <tr><th>#</th><th>Participante</th><th style="text-align: right;">Pontos na Fase</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><div class="pos-badge top-1">1º</div></td><td>Ana Beatriz Guimarães Gomes</td><td style="text-align: right; font-weight: 700; color:var(--liber-blue);">100 pts</td></tr>
+                        <tr><td><div class="pos-badge top-1">1º</div></td><td>Pedrito Hildebrando</td><td style="text-align: right; font-weight: 700; color:var(--liber-blue);">100 pts</td></tr>
+                        <tr><td><div class="pos-badge">3º</div></td><td>Todos os outros 86 participantes</td><td style="text-align: right; color:var(--text-muted);">0 pts</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="rodada2" class="tab-content">
+                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação da Elofy.</p>
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="rodada3" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="segundas" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="oitavas" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="quartas" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="semis" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>
+            </div>
+
+            <div id="final" class="tab-content">
+                <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Fase não iniciada</td></tr></tbody></table>
+            </div>
+
+        </div>
+
+        <div class="rules-card">
+            <div style="font-weight: 700; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-circle-nodes" style="color: var(--liber-orange);"></i> Sistema de Pesos Oficial
+            </div>
+            <div class="rules-grid">
+                <div class="rule-item"><i class="fa-solid fa-circle-check"></i> Vencedor: 100 pts</div>
+                <div class="rule-item"><i class="fa-solid fa-bullseye"></i> Placar Exato: 50 pts</div>
+                <div class="rule-item"><i class="fa-solid fa-star"></i> MVP / Gols: 25 pts</div>
+                <div class="rule-item"><i class="fa-solid fa-fire"></i> Bônus Especial: 75 pts</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTab(evt, phaseId) {
+            // Esconde todos os conteúdos das abas
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Remove a classe 'active' de todos os botões
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            // Mostra a aba atual e adiciona a classe 'active' ao botão clicado
+            document.getElementById(phaseId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
