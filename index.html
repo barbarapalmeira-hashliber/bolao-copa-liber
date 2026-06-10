@@ -61,7 +61,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* 🏔️ GRÁFICO PICOS DE MONTANHA CONECTADOS */
+        /* 🏔️ GRÁFICO PICOS DE MONTANHA CONECTADOS (ESTILO ESCADINHA) */
         .mountains-row { 
             display: flex; 
             justify-content: center; 
@@ -80,7 +80,7 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            margin-left: -35px; /* Faz os elementos sobreporem e conectarem */
+            margin-left: -35px; /* Conecta e sobrepõe as montanhas */
             transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s; 
             cursor: help;
         }
@@ -100,7 +100,7 @@
         /* Comportamento Interativo ao Passar o Mouse */
         .mountain-peak:hover {
             transform: scale(1.08) translateY(-4px);
-            z-index: 999 !important; /* Traz a montanha focada para a frente de todas */
+            z-index: 999 !important; /* Traz a montanha focada para a frente */
         }
         .mountain-peak:hover .mountain-winner {
             overflow: visible;
@@ -337,11 +337,11 @@
                 }
                 document.getElementById('lanternas-table-body').innerHTML = lanternasHtml;
 
-                // Renderizar abas por fase
+                // 🌟 CORREÇÃO ORTOGRÁFICA: Ajustado para o singular para bater 100% com o Google Sheets
                 const phases = {
                     'rodada1': 'rodada 01', 'rodada2': 'rodada 02', 'rodada3': 'rodada 03',
-                    'segundas': 'segundas de finais', 'oitavas': 'oitavas de finais',
-                    'quartas': 'quartas de finais', 'semis': 'semifinais', 'final': 'final'
+                    'segundas': 'segundas de final', 'oitavas': 'oitavas de final',
+                    'quartas': 'quartas de final', 'semis': 'semifinais', 'final': 'final'
                 };
 
                 const mountainWinners = [];
@@ -360,12 +360,12 @@
                     }
                 }
 
-                // 🏔️ RENDERIZAR GRÁFICO PICOS DE MONTANHA CONECTADOS
+                // 🏔️ RENDERIZAR GRÁFICO PICOS DE MONTANHA CONECTADOS (ESTILO ESCADINHA)
                 const colors = ['#002654', '#006aeb', '#E65100'];
                 let mountainHtml = "";
                 mountainWinners.forEach((m, idx) => {
                     const color = colors[idx % colors.length];
-                    const layerIndex = idx + 1; // Camadas para sobreposição perfeita da escadinha
+                    const layerIndex = idx + 1; // Camadas progressivas para sobreposição correta
                     
                     if (m.score > 0) {
                         mountainHtml += `
