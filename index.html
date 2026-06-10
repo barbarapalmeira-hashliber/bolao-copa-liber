@@ -25,9 +25,9 @@
         .header-title h1 { font-size: 2.2rem; font-weight: 800; text-transform: uppercase; }
         .header-title p { color: #cbd5e1; font-size: 1rem; margin-top: 5px; }
         
-        /* LOGO SVG RESPONSIVA */
-        .logo-container { width: 160px; height: auto; display: flex; align-items: center; }
-        .logo-container svg { width: 100%; height: auto; }
+        /* LOGO CORPORATIVO EM PNG */
+        .logo-container { width: 180px; display: flex; align-items: center; justify-content: flex-end; }
+        .logo-container img { width: 100%; height: auto; object-fit: contain; }
 
         .dashboard-container { max-width: 1400px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 25px; }
         
@@ -60,6 +60,10 @@
         tr.highlight-leader td { background-color: #fffbeb; font-weight: 700; }
         tr.highlight-leader .score-pill { background-color: var(--liber-orange); }
         
+        /* SCROLL CONTAINER PARA TABELAS COMPLETA DE RODADAS */
+        .table-scrollable { max-height: 400px; overflow-y: auto; width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; }
+        .table-scrollable th { position: sticky; top: 0; background-color: #f8fafc; z-index: 2; }
+
         /* ABAS */
         .tabs-header { display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; overflow-x: auto; }
         .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-transform: uppercase; }
@@ -67,22 +71,27 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* 🏔️ GRÁFICO PICOS DE MONTANHA */
-        .mountains-row { display: flex; gap: 15px; justify-content: space-between; align-items: flex-end; padding-top: 20px; overflow-x: auto; }
-        .mountain-peak { flex: 1; min-width: 130px; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .mountain-peak svg { width: 100%; height: 110px; display: block; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.05)); }
-        .mountain-label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
-        .mountain-winner { font-size: 0.85rem; font-weight: 700; color: var(--liber-dark); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-        .mountain-score { font-size: 0.75rem; color: var(--liber-orange); font-weight: 700; }
-        .mountain-locked { opacity: 0.4; }
+        /* 🏔️ CORDILHEIRA DE MONTANHAS CONECTADAS EM ESCADINHA */
+        .mountains-wrapper { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px 20px; overflow-x: auto; width: 100%; }
+        .mountains-row { display: flex; justify-content: center; align-items: flex-end; min-width: 1100px; position: relative; padding-left: 40px; padding-right: 40px; }
+        .mountain-peak { position: relative; flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; margin-left: -45px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mountain-peak:first-child { margin-left: 0; }
+        .mountain-peak svg { width: 115%; height: 130px; display: block; filter: drop-shadow(0px 6px 4px rgba(0,0,0,0.08)); }
+        .mountain-label { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; z-index: 3; position: relative; letter-spacing: 0.5px; }
+        .mountain-winner { font-size: 0.8rem; font-weight: 700; color: var(--liber-dark); margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 115px; z-index: 3; position: relative; }
+        .mountain-score { font-size: 0.75rem; color: var(--liber-orange); font-weight: 700; z-index: 3; position: relative; }
+        .mountain-locked { opacity: 0.45; }
         .mountain-locked .mountain-winner { color: var(--text-muted); font-weight: 500; }
+        
+        /* Camadas de sobreposição 3D ao passar o mouse */
+        .mountain-peak:hover { transform: translateY(-8px) scale(1.08); z-index: 10 !important; }
 
         /* GRID DE VARIÁVEIS DE PERGUNTAS */
         .variables-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-top: 15px; }
-        .variable-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; min-height: 220px; display: flex; flex-direction: column; }
-        .variable-card h4 { font-size: 0.85rem; color: var(--liber-dark); text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .variable-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; min-height: 220px; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .variable-card h4 { font-size: 0.8rem; color: var(--liber-dark); text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .variable-card h4 i { color: var(--liber-blue); }
-        .variable-rank-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px dashed #e2e8f0; font-weight: 500; }
+        .variable-rank-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; padding: 7px 0; border-bottom: 1px dashed #e2e8f0; font-weight: 500; }
         .variable-rank-item:last-child { border-bottom: none; }
         .variable-locked-state { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); font-size: 0.8rem; gap: 8px; }
         .variable-locked-state i { font-size: 1.6rem; color: #94a3b8; }
@@ -96,25 +105,16 @@
     <header>
         <div class="header-title">
             <h1>Bolão Líber 2026</h1>
-            <p><i class="fa-regular fa-calendar-days"></i> Painel de Desempenho e Estatísticas</p>
+            <p><i class="fa-regular fa-calendar-days"></i> Painel de Desempenho Corporativo</p>
         </div>
         <div class="logo-container">
-            <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1197.6 559.73">
-                <defs><style>.cls-1 { fill: #ffffff; stroke-width: 0px; }</style></defs>
-                <g>
-                    <path class="cls-1" d="M1081.63,213.18v39.57c0,3.52-3.07,6.2-6.56,5.83-2.18-.23-4.25-.35-6.19-.35-21.41,0-38.12,6.23-50.14,18.69-12.03,12.47-18.03,30.43-18.03,53.88v105.23c0,4.8-3.89,8.7-8.7,8.7h-21.17c-13.87,0-25.12-11.24-25.12-25.12v-201.07c0-4.8,3.89-8.7,8.7-8.7h18.53c13.87,0,25.12,11.24,25.12,25.12v9.19c15.02-23.36,40.85-35.64,77.49-36.85,3.32-.11,6.08,2.56,6.08,5.88Z"/>
-                    <path class="cls-1" d="M876.65,344.88h-163.17c-3.04,0-5.19,2.9-4.4,5.83,3.91,14.58,11.91,26.34,23.97,35.29,13.64,10.12,30.57,15.17,50.8,15.17,12.84,0,24.56-2.11,35.16-6.32,20.38-8.11,43.69-1.87,58.09,14.68h0c-10.56,12.61-23.9,22.14-40.03,28.59-16.13,6.45-34.31,9.68-54.54,9.68-25.81,0-48.54-5.13-68.18-15.4-19.65-10.26-34.82-24.56-45.52-42.89-10.71-18.32-16.06-39.07-16.06-62.24s5.2-43.47,15.62-61.8c10.4-18.32,24.85-32.62,43.33-42.89,18.47-10.26,39.29-15.4,62.46-15.4s43.33,5.06,61.36,15.17c18.03,10.12,32.11,24.34,42.23,42.67,10.12,18.33,15.17,39.52,15.17,63.56,0,.04,0,.08,0,.11-.01,8.94-7.35,16.16-16.29,16.16ZM729.53,266.8c-10.85,9.28-17.9,21.29-21.18,36.04-.63,2.84,1.58,5.53,4.48,5.53h122.32c2.88,0,5.09-2.65,4.5-5.47-3.04-14.51-9.9-26.48-20.61-35.88-12.03-10.56-26.98-15.83-44.87-15.83s-32.48,5.21-44.65,15.61Z"/>
-                    <path class="cls-1" d="M561.95,222.16c18.03,9.97,32.18,24.05,42.45,42.23,10.26,18.19,15.4,39.15,15.4,62.9s-5.13,44.8-15.4,63.12c-10.27,18.33-24.41,32.48-42.45,42.45-18.04,9.97-38.49,14.96-61.36,14.96-16.13,0-30.87-2.79-44.21-8.36-9.81-4.09-18.47-9.7-25.98-16.81-2.89-2.74-7.66-.63-7.66,3.35v10.03c0,4.8-3.89,8.7-8.7,8.7h-22.55c-11.65,0-21.1-9.45-21.1-21.1V127.05c0-4.8,3.89-8.7,8.7-8.7h25.19c11.65,0,21.1,9.45,21.1,21.1v88.11c0,3.9,4.6,6.05,7.53,3.48,7.62-6.69,16.18-12,25.68-15.93,12.75-5.28,26.76-7.92,42.02-7.92,22.87,0,43.32,5.02,61.36,15.06Z"/>
-                    <path class="cls-1" d="M303.4,127.05c0-4.8,3.89-8.7,8.7-8.7h25.19c11.65,0,21.1,9.45,21.1,21.1v246.47c0,13.87-11.24,25.12-25.12,25.12h-31.17c-4.8,0-8.7-3.89-8.7-8.7V127.05Z"/>
-                    <path class="cls-1" d="M333.1,49.27c0,21.67-17.57,39.24-39.24,39.24s-39.24-17.57-39.24-39.24,17.57-39.24,39.24-39.24,39.24,17.57,39.24,39.24Z"/>
-                </g>
-            </svg>
+            <img src="Liber-LETTERING_WHITE.png" alt="Líber Logo">
         </div>
     </header>
 
     <div id="loading-state" class="loading">
         <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-        Sincronizando estatísticas em tempo real...
+        Sincronizando notas e processando estatísticas...
     </div>
 
     <div class="dashboard-container" id="dashboard-content" style="display: none;">
@@ -131,7 +131,7 @@
             <div class="kpi-data">
                 <h3>Participantes Ativos</h3>
                 <div class="value" id="kpi-total-players">0 Integrantes</div>
-                <div class="subtext">Apenas usuários engajados</div>
+                <div class="subtext">Apenas usuários jogando</div>
             </div>
         </div>
         <div class="kpi-card prize">
@@ -153,7 +153,7 @@
             </div>
 
             <div class="dashboard-section">
-                <div class="section-title"><i class="fa-solid fa-heart-crack" style="color: var(--liber-orange);"></i> Zona de Recuperação</div>
+                <div class="section-title"><i class="fa-solid fa-heart-crack" style="color: var(--liber-orange);"></i> Zona de Recuperação (Lanternas)</div>
                 <table class="ranking-table">
                     <thead><tr><th style="width: 60px;">Pos</th><th>Nome</th><th style="text-align: right;">Pontos</th></tr></thead>
                     <tbody id="lanternas-table-body"></tbody>
@@ -162,7 +162,7 @@
         </div>
 
         <div class="right-col dashboard-section">
-            <div class="section-title"><i class="fa-solid fa-chart-simple" style="color: var(--liber-blue);"></i> Top 5 por Fase</div>
+            <div class="section-title"><i class="fa-solid fa-chart-simple" style="color: var(--liber-blue);"></i> Classificação das Rodadas</div>
             <div class="tabs-header">
                 <button class="tab-btn active" onclick="switchTab(event, 'rodada1')">Grupos - R1</button>
                 <button class="tab-btn" onclick="switchTab(event, 'rodada2')">Grupos - R2</button>
@@ -185,25 +185,23 @@
         </div>
 
         <div class="full-width-col dashboard-section">
-            <div class="section-title"><i class="fa-solid fa-mountain" style="color: #10b981;"></i> Galeria de Campeões por Fase</div>
-            <div class="mountains-row" id="mountains-container">
-                </div>
+            <div class="section-title"><i class="fa-solid fa-mountain" style="color: #10b981;"></i> Cordilheira de Campeões por Fase</div>
+            <div class="mountains-wrapper">
+                <div class="mountains-row" id="mountains-container"></div>
+            </div>
         </div>
 
         <div class="full-width-col dashboard-section">
-            <div class="section-title"><i class="fa-solid fa-medal" style="color: var(--liber-orange);"></i> Recordistas por Tipo de Pergunta (Top 3)</div>
-            <div class="variables-grid" id="variables-container">
-                </div>
+            <div class="section-title"><i class="fa-solid fa-medal" style="color: var(--liber-orange);"></i> Líderes de Estatísticas por Tipo de Acerto (Top 3)</div>
+            <div class="variables-grid" id="variables-container"></div>
         </div>
 
     </div>
 
     <script>
-        // Configurações das URLs das abas do Google Sheets em formato CSV
+        // Links dinâmicos parametrizados com GID para capturar as abas de forma correta
         const CSV_PESSOAS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?gid=1105023004&single=true&output=csv";
-        
-        // 🛠️ COLOQUE AQUI O LINK CSV DA SUA SEGUNDA ABA ("Base de variáveis"):
-        const CSV_VARIAVEIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?gid=2040902157&single=true&output=csv"; 
+        const CSV_VARIAVEIS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBzrL7yq9eLXZ-52mQHjxr9jaLw50piFM6CDGD7P6YYV8Rwf-mQLH4npoOL2gS-1jgPNj_f2wChwi/pub?gid=128874607&single=true&output=csv"; 
 
         function switchTab(evt, phaseId) {
             const tabContents = document.getElementsByClassName("tab-content");
@@ -247,29 +245,33 @@
         }
 
         function renderLockedPhase() {
-            return `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação da Elofy.</p>
+            return `<p style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação de dados pela Elofy.</p>
             <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>`;
         }
 
+        // Renderiza a lista completa para que todo mundo saiba sua posição real
         function renderActivePhase(data, columnName) {
-            let html = `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;"><i class="fa-solid fa-circle-info"></i> Melhores da fase acumulado!</p>
-            <table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align: right;">Pontos</th></tr></thead><tbody>`;
+            let html = `<p style="color: var(--text-muted); margin-bottom: 12px; font-size: 0.85rem;"><i class="fa-solid fa-circle-info"></i> Classificação geral de todos os ativos nesta fase:</p>
+            <div class="table-scrollable"><table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align: right;">Pontos</th></tr></thead><tbody>`;
             data.forEach((row, idx) => {
-                html += `<tr><td><div class="pos-badge ${idx===0?'top-1':'top-5'}">${idx+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right; font-weight: 700; color:var(--liber-blue);">${parseInt(row[columnName]) || 0} pts</td></tr>`;
+                html += `<tr><td><div class="pos-badge ${idx===0?'top-1':(idx<5?'top-5':'')}">${idx+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right; font-weight: 700; color:var(--liber-blue);">${parseInt(row[columnName]) || 0} pts</td></tr>`;
             });
-            return html + "</tbody></table>";
+            return html + "</tbody></table></div>";
+        }
+
+        // Sistema flexível de busca de cabeçalhos por similaridade
+        function matchHeader(headers, keyOptions) {
+            return keyOptions.find(opt => headers.includes(normalizeKey(opt))) || null;
         }
 
         async function loadDashboard() {
             try {
-                // 1. CARREGAR DADOS DA ABA "BASE DE PESSOAS"
+                // 1. PROCESSAR DADOS DE BASE DE PESSOAS
                 const resPessoas = await fetch(CSV_PESSOAS_URL);
                 const textPessoas = await resPessoas.text();
                 const parsedPessoas = parseCSV(textPessoas);
-                
                 const foundHeaders = parsedPessoas.headers;
 
-                // 🌟 FILTRO RÍGIDO: Remove usuários inativos em tempo de execução
                 const activePlayers = parsedPessoas.data.filter(p => {
                     const hasName = p['nome da pessoa'] && p['nome da pessoa'] !== 'undefined' && p['nome da pessoa'] !== 'NaN';
                     const isAtivo = !p['status'] || p['status'].trim().toLowerCase() !== 'inativo';
@@ -281,12 +283,12 @@
                 activePlayers.forEach(p => p.total = parseInt(p.total) || 0);
                 const rankingGeral = [...activePlayers].sort((a, b) => b.total - a.total);
 
-                // Atualizar KPIs com contagem correta e dinâmica de ativos
+                // KPIs Dinâmicos
                 document.getElementById('kpi-leader-name').innerText = rankingGeral[0]['nome da pessoa'];
                 document.getElementById('kpi-leader-score').innerText = rankingGeral[0].total + " pts";
                 document.getElementById('kpi-total-players').innerText = rankingGeral.length + " Integrantes";
 
-                // Renderizar Top 5 Geral
+                // Top 5 Geral Travado
                 let top5Html = "";
                 for(let i=0; i < Math.min(5, rankingGeral.length); i++) {
                     const row = rankingGeral[i];
@@ -294,135 +296,91 @@
                 }
                 document.getElementById('top5-table-body').innerHTML = top5Html;
 
-                // Renderizar Lanternas Ativos (Garante exclusão de inativos zerados)
+                // Lanternas Geral Travado (Apenas os 5 piores ativos reais)
                 let lanternasHtml = "";
                 const totalP = rankingGeral.length;
-                for(let i = Math.max(0, totalP - 5); i < totalP; i++) {
+                const indexInicioLanternas = Math.max(0, totalP - 5);
+                for(let i = indexInicioLanternas; i < totalP; i++) {
                     const row = rankingGeral[i];
                     lanternasHtml += `<tr><td><div class="pos-badge lanterna">${i+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right;"><span class="score-pill" style="background-color:#94a3b8;">${row.total}</span></td></tr>`;
                 }
                 document.getElementById('lanternas-table-body').innerHTML = lanternasHtml;
 
-                // Renderizar abas por fase
-                const phases = {
-                    'rodada1': 'rodada 01', 'rodada2': 'rodada 02', 'rodada3': 'rodada 03',
-                    'segundas': 'segundas de finais', 'oitavas': 'oitavas de finais',
-                    'quartas': 'quartas de finais', 'semis': 'semifinais', 'final': 'final'
-                };
+                // Configuração das fases e sinônimos das colunas
+                const phaseConfig = [
+                    { id: 'rodada1', options: ['Rodada 01', 'Rodada 1', 'rodada01'] },
+                    { id: 'rodada2', options: ['Rodada 02', 'Rodada 2', 'rodada02'] },
+                    { id: 'rodada3', options: ['Rodada 03', 'Rodada 3', 'rodada03'] },
+                    { id: 'segundas', options: ['Segundas de final', 'Segundas de finais', 'Segundas'] },
+                    { id: 'oitavas', options: ['Oitavas de final', 'Oitavas de finais', 'Oitavas'] },
+                    { id: 'quartas', options: ['Quartas de final', 'Quartas de finais', 'Quartas'] },
+                    { id: 'semis', options: ['Semifinais', 'Semifinal', 'Semis'] },
+                    { id: 'final', options: ['Final', 'Finais'] }
+                ];
 
                 const mountainWinners = [];
+                const colors = ['#002654', '#006aeb', '#E65100', '#10b981', '#6366f1'];
 
-                for (const [tabId, colName] of Object.entries(phases)) {
-                    if (foundHeaders.includes(colName)) {
-                        const maxScore = Math.max(...activePlayers.map(p => parseInt(p[colName]) || 0));
+                phaseConfig.forEach((phase, idx) => {
+                    const colMatched = matchHeader(foundHeaders, phase.options);
+                    const colNormalized = colMatched ? normalizeKey(colMatched) : null;
+                    
+                    if (colNormalized) {
+                        const maxScore = Math.max(...activePlayers.map(p => parseInt(p[colNormalized]) || 0));
                         if (maxScore > 0) {
-                            const phaseSorted = [...activePlayers].sort((a, b) => (parseInt(b[colName]) || 0) - (parseInt(a[colName]) || 0));
-                            document.getElementById(tabId).innerHTML = renderActivePhase(phaseSorted.slice(0,5), colName);
-                            mountainWinners.push({ phase: colName, name: phaseSorted[0]['nome da pessoa'], score: maxScore });
+                            const phaseSorted = [...activePlayers].sort((a, b) => (parseInt(b[colNormalized]) || 0) - (parseInt(a[colNormalized]) || 0));
+                            document.getElementById(phase.id).innerHTML = renderActivePhase(phaseSorted, colNormalized);
+                            mountainWinners.push({ phase: colMatched, name: phaseSorted[0]['nome da pessoa'], score: maxScore, color: colors[idx % colors.length] });
                         } else {
-                            document.getElementById(tabId).innerHTML = renderLockedPhase();
-                            mountainWinners.push({ phase: colName, name: 'Aguardando', score: 0 });
+                            document.getElementById(phase.id).innerHTML = renderLockedPhase();
+                            mountainWinners.push({ phase: colMatched, name: 'Oculto', score: 0, color: '#cbd5e1' });
                         }
+                    } else {
+                        document.getElementById(phase.id).innerHTML = `<p style='color:var(--text-muted); padding:20px;'>Mapeamento de coluna não encontrado.</p>`;
                     }
-                }
+                });
 
-                // 🏔️ RENDERIZAR GRÁFICO PICOS DE MONTANHA
-                const colors = ['#002654', '#006aeb', '#E65100'];
+                // 🏔️ RENDERIZAR MONTANHAS CONECTADAS EM ESCADINHA (Z-INDEX INDEXADO)
                 let mountainHtml = "";
                 mountainWinners.forEach((m, idx) => {
-                    const color = colors[idx % colors.length];
+                    const zIndex = idx + 1; // Garante empilhamento sequencial lateral contínuo
                     if (m.score > 0) {
                         mountainHtml += `
-                        <div class="mountain-peak">
+                        <div class="mountain-peak" style="z-index: ${zIndex};">
                             <div class="mountain-label">${m.phase}</div>
                             <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <polygon points="50,15 5,100 95,100" fill="${color}"/>
-                                <polygon points="50,15 35,45 50,40 55,50 65,40" fill="#ffffff" opacity="0.9"/>
+                                <polygon points="50,12 3,100 97,100" fill="${m.color}"/>
+                                <polygon points="50,12 33,46 50,42 54,52 64,42" fill="#ffffff" opacity="0.95"/>
                             </svg>
                             <div class="mountain-winner">${m.name}</div>
                             <div class="mountain-score">${m.score} pts</div>
                         </div>`;
                     } else {
                         mountainHtml += `
-                        <div class="mountain-peak mountain-locked">
+                        <div class="mountain-peak mountain-locked" style="z-index: ${zIndex};">
                             <div class="mountain-label">${m.phase}</div>
                             <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <polygon points="50,25 10,100 90,100" fill="#cbd5e1"/>
+                                <polygon points="50,22 12,100 88,100" fill="#cbd5e1"/>
                             </svg>
-                            <div class="mountain-winner"><i class="fa-solid fa-lock"></i> Oculto</div>
+                            <div class="mountain-winner"><i class="fa-solid fa-lock"></i> Bloqueado</div>
                             <div class="mountain-score">--</div>
                         </div>`;
                     }
                 });
                 document.getElementById('mountains-container').innerHTML = mountainHtml;
 
-                // 2. CARREGAR DADOS DA ABA "BASE DE VARIÁVEIS"
-                let variablesHtml = "";
+                // 2. PROCESSAR DADOS DE BASE DE VARIÁVEIS (EXCLUSIVO TOP 3)
+                const resVars = await fetch(CSV_VARIAVEIS_URL);
+                const textVars = await resVars.text();
+                const parsedVars = parseCSV(textVars);
+                
+                const activeVars = parsedVars.data.filter(p => {
+                    const hasName = p['nome da pessoa'] && p['nome da pessoa'] !== 'undefined' && p['nome da pessoa'] !== 'NaN';
+                    const isAtivo = !p['status'] || p['status'].trim().toLowerCase() !== 'inativo';
+                    return hasName && isAtivo;
+                });
+
                 const variableTypes = [
-                    { id: 'vencedor', label: 'Quem mais acertou: Vencedor', icon: 'fa-regular fa-circle-check' },
-                    { id: 'placar', label: 'Quem mais acertou: Placar', icon: 'fa-solid fa-bullseye' },
-                    { id: 'mvp', label: 'Quem mais acertou: MVP', icon: 'fa-solid fa-star' },
-                    { id: 'goleadores', label: 'Quem mais acertou: Gols', icon: 'fa-solid fa-shoe-prints' },
-                    { id: 'bonus', label: 'Quem mais acertou: Bônus', icon: 'fa-solid fa-bolt' }
-                ];
-
-                try {
-                    const resVars = await fetch(CSV_VARIAVEIS_URL);
-                    const textVars = await resVars.text();
-                    const parsedVars = parseCSV(textVars);
-                    
-                    const activeVars = parsedVars.data.filter(p => {
-                        const hasName = p['nome da pessoa'] && p['nome da pessoa'] !== 'undefined' && p['nome da pessoa'] !== 'NaN';
-                        const isAtivo = !p['status'] || p['status'].trim().toLowerCase() !== 'inativo';
-                        return hasName && isAtivo;
-                    });
-
-                    variableTypes.forEach(t => {
-                        variablesHtml += `<div class="variable-card"><h4><i class="${t.icon}"></i> ${t.label}</h4>`;
-                        
-                        if (parsedVars.headers.includes(t.id)) {
-                            const maxVarScore = Math.max(...activeVars.map(p => parseInt(p[t.id]) || 0));
-                            
-                            if (maxVarScore > 0) {
-                                const top3Vars = [...activeVars].sort((a, b) => (parseInt(b[t.id]) || 0) - (parseInt(a[t.id]) || 0)).slice(0, 3);
-                                top3Vars.forEach((player, i) => {
-                                    variablesHtml += `
-                                    <div class="variable-rank-item">
-                                        <span><b>${i+1}º</b> ${player['nome da pessoa']}</span>
-                                        <span class="score-pill" style="background:${i===0?'var(--liber-orange)':'var(--liber-dark)'}">${parseInt(player[t.id])} pts</span>
-                                    </div>`;
-                                });
-                            } else {
-                                variablesHtml += `<div class="variable-locked-state"><i class="fa-solid fa-lock"></i><span>Rodada não iniciada<br><small style="color:#94a3b8">Aguardando tabulação</small></span></div>`;
-                            }
-                        } else {
-                            variablesHtml += `<div class="variable-locked-state"><i class="fa-solid fa-lock"></i><span>Coluna não localizada</span></div>`;
-                        }
-                        variablesHtml += `</div>`;
-                    });
-                } catch (e) {
-                    // Fallback caso a segunda URL ainda não esteja configurada ou dê erro
-                    variableTypes.forEach(t => {
-                        variablesHtml += `<div class="variable-card"><h4><i class="${t.icon}"></i> ${t.label}</h4><div class="variable-locked-state"><i class="fa-solid fa-link-slash"></i><span>Aguardando link da aba de variáveis</span></div></div>`;
-                    });
-                }
-                document.getElementById('variables-container').innerHTML = variablesHtml;
-
-                // Transição visual do Loading para o Painel
-                document.getElementById('loading-state').style.display = 'none';
-                document.getElementById('dashboard-content').style.display = 'grid';
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading-state').innerHTML = `
-                    <div class="error-box">
-                        <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; margin-bottom:10px; display:block;"></i>
-                        <b>Erro de conexão e sincronização:</b><br>${error.message}
-                    </div>`;
-            }
-        }
-
-        window.onload = loadDashboard;
-    </script>
-</body>
-</html>
+                    { id: 'vencedor', label: 'Estatística: Vencedor', icon: 'fa-regular fa-circle-check' },
+                    { id: 'placar', label: 'Estatística: Placar', icon: 'fa-solid fa-bullseye' },
+                    { id: 'mvp', label: 'Estatística: MVP
