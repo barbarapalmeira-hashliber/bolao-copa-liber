@@ -56,10 +56,10 @@
         
         /* ABAS */
         .tabs-header { display: flex; gap: 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 20px; overflow-x: auto; }
-        .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-transform: uppercase; }
+        .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-transform: uppercase; white-space: nowrap; }
         .tab-btn.active { background-color: var(--liber-blue); color: white; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; max-height: 440px; overflow-y: auto; padding-right: 5px; }
 
         /* 🏔️ GRÁFICO PICOS DE MONTANHA CONECTADOS (ESTILO ESCADINHA) */
         .mountains-row { 
@@ -208,6 +208,7 @@
                 <button class="tab-btn" onclick="switchTab(event, 'quartas')">Quartas</button>
                 <button class="tab-btn" onclick="switchTab(event, 'semis')">Semis</button>
                 <button class="tab-btn" onclick="switchTab(event, 'final')">Final</button>
+                <button class="tab-btn" onclick="switchTab(event, 'bonus')">Bônus</button>
             </div>
 
             <div id="rodada1" class="tab-content active">Carregando...</div>
@@ -218,6 +219,7 @@
             <div id="quartas" class="tab-content">Carregando...</div>
             <div id="semis" class="tab-content">Carregando...</div>
             <div id="final" class="tab-content">Carregando...</div>
+            <div id="bonus" class="tab-content">Carregando...</div>
         </div>
 
         <div class="full-width-col dashboard-section">
@@ -324,7 +326,7 @@
                 let top5Html = "";
                 for(let i=0; i < Math.min(5, rankingGeral.length); i++) {
                     const row = rankingGeral[i];
-                    top5Html += `<tr${i===0?' class="highlight-leader"':''}><td><div class="pos-badge ${i===0?'top-1':'top-5'}">${i+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right;"><span class="score-pill">${row.total}</span></td></tr>`;
+                    top5Html += `<tr${i===0?' class="highlight-leader"':''}><td><div class="pos-badge ${i===0?'top-1':'top-5'}">${i+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right;"><span class="score-pill">${row.total}</span></td></tr> carbon`;
                 }
                 document.getElementById('top5-table-body').innerHTML = top5Html;
 
@@ -341,7 +343,8 @@
                 const phases = {
                     'rodada1': 'rodada 01', 'rodada2': 'rodada 02', 'rodada3': 'rodada 03',
                     'segundas': 'segundas de final', 'oitavas': 'oitavas de final',
-                    'quartas': 'quartas de final', 'semis': 'semifinais', 'final': 'final'
+                    'quartas': 'quartas de final', 'semis': 'semifinais', 'final': 'final',
+                    'bonus': 'rodada bonus'
                 };
 
                 const mountainWinners = [];
