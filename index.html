@@ -198,7 +198,7 @@
         </div>
 
         <div class="right-col dashboard-section">
-            <div class="section-title"><i class="fa-solid fa-chart-simple" style="color: var(--liber-blue);"></i> Top 5 por Fase</div>
+            <div class="section-title"><i class="fa-solid fa-chart-simple" style="color: var(--liber-blue);"></i> Ranking por Fase</div>
             <div class="tabs-header">
                 <button class="tab-btn active" onclick="switchTab(event, 'rodada1')">Grupos - R1</button>
                 <button class="tab-btn" onclick="switchTab(event, 'rodada2')">Grupos - R2</button>
@@ -351,7 +351,7 @@
                         const maxScore = Math.max(...activePlayers.map(p => parseInt(p[colName]) || 0));
                         if (maxScore > 0) {
                             const phaseSorted = [...activePlayers].sort((a, b) => (parseInt(b[colName]) || 0) - (parseInt(a[colName]) || 0));
-                            document.getElementById(tabId).innerHTML = renderActivePhase(phaseSorted.slice(0,5), colName);
+                            document.getElementById(tabId).innerHTML = renderActivePhase(phaseSorted, colName);
                             mountainWinners.push({ phase: colName.toUpperCase(), name: phaseSorted[0]['nome da pessoa'], score: maxScore });
                         } else {
                             document.getElementById(tabId).innerHTML = renderLockedPhase();
