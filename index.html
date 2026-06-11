@@ -351,8 +351,7 @@
                 const phases = {
                     'rodada1': 'rodada 01', 'rodada2': 'rodada 02', 'rodada3': 'rodada 03',
                     'segundas': 'segundas de final', 'oitavas': 'oitavas de final',
-                    'quartas': 'quartas de final', 'semis': 'semifinais', 'final': 'final',
-                    'bonus': 'rodada bonus'
+                    'quartas': 'quartas de final', 'semis': 'semifinais', 'final': 'final'
                 };
 
                 const mountainWinners = [];
@@ -424,6 +423,19 @@
                         return hasName && isAtivo;
                     });
 
+                    // Renderizar a aba da Rodada Bônus usando a Base de Variáveis
+                    if (parsedVars.headers.includes('bonus')) {
+                        const maxBonusScore = Math.max(...activeVars.map(p => parseInt(p['bonus']) || 0));
+                        if (maxBonusScore > 0) {
+                            const bonusSorted = [...activeVars].sort((a, b) => (parseInt(b['bonus']) || 0) - (parseInt(a['bonus']) || 0));
+                            document.getElementById('bonus').innerHTML = renderActivePhase(bonusSorted, 'bonus');
+                        } else {
+                            document.getElementById('bonus').innerHTML = renderLockedPhase();
+                        }
+                    } else {
+                        document.getElementById('bonus').innerHTML = renderLockedPhase();
+                    }
+
                     variableTypes.forEach(t => {
                         variablesHtml += `<div class="variable-card"><h4><i class="${t.icon}"></i> ${t.label}</h4>`;
                         
@@ -448,6 +460,7 @@
                         variablesHtml += `</div>`;
                     });
                 } catch (e) {
+                    document.getElementById('bonus').innerHTML = renderLockedPhase();
                     variableTypes.forEach(t => {
                         variablesHtml += `<div class="variable-card"><h4><i class="${t.icon}"></i> ${t.label}</h4><div class="variable-locked-state"><i class="fa-solid fa-link-slash"></i><span>Aguardando link da aba de variáveis</span></div></div>`;
                     });
