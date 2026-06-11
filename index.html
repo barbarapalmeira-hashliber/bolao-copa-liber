@@ -25,6 +25,14 @@
         .header-title h1 { font-size: 2.2rem; font-weight: 800; text-transform: uppercase; }
         .header-title p { color: #cbd5e1; font-size: 1rem; margin-top: 5px; }
         
+        /* CONTAINER PRINCIPAL DO GRID */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 30px;
+            padding: 30px 5%;
+        }
+
         /* KPIs */
         .kpi-card { grid-column: span 4; background: white; border-radius: 16px; padding: 25px; display: flex; align-items: center; gap: 20px; border-left: 6px solid var(--liber-blue); }
         .kpi-card.leader { border-left-color: var(--liber-orange); background: linear-gradient(to right, #fff, #fffde6); }
@@ -38,7 +46,7 @@
         /* SEÇÕES GRID */
         .dashboard-section { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .section-title { font-size: 1.2rem; font-weight: 700; color: var(--liber-dark); margin-bottom: 20px; text-transform: uppercase; display: flex; align-items: center; gap: 10px; }
-        .left-col { grid-column: span 5; display: flex; flex-direction: column; gap: 25px; }
+        .left-col { grid-column: span 5; display: flex; flex-direction: column; gap: 30px; }
         .right-col { grid-column: span 7; }
         .full-width-col { grid-column: span 12; }
         
@@ -59,7 +67,7 @@
         .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; border-radius: 8px; text-transform: uppercase; white-space: nowrap; }
         .tab-btn.active { background-color: var(--liber-blue); color: white; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; max-height: 440px; overflow-y: auto; padding-right: 5px; }
+        .tab-content.active { display: block; max-height: 620px; overflow-y: auto; padding-right: 5px; }
 
         /* 🏔️ GRÁFICO PICOS DE MONTANHA CONECTADOS (ESTILO ESCADINHA) */
         .mountains-row { 
@@ -326,7 +334,7 @@
                 let top5Html = "";
                 for(let i=0; i < Math.min(5, rankingGeral.length); i++) {
                     const row = rankingGeral[i];
-                    top5Html += `<tr${i===0?' class="highlight-leader"':''}><td><div class="pos-badge ${i===0?'top-1':'top-5'}">${i+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right;"><span class="score-pill">${row.total}</span></td></tr> carbon`;
+                    top5Html += `<tr${i===0?' class="highlight-leader"':''}><td><div class="pos-badge ${i===0?'top-1':'top-5'}">${i+1}º</div></td><td>${row['nome da pessoa']}</td><td style="text-align: right;"><span class="score-pill">${row.total}</span></td></tr>`;
                 }
                 document.getElementById('top5-table-body').innerHTML = top5Html;
 
