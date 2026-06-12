@@ -290,6 +290,25 @@
             return { data: result, headers: normalizedHeaders };
         }
 
+        function parseTimestamp(dateStr) {
+            if (!dateStr || dateStr.trim() === '') return Infinity;
+            try {
+                let sanitized = dateStr.trim();
+                if (sanitized.includes('-')) {
+                    sanitized = sanitized.replace(' ', 'T');
+                }
+                if (sanitized.includes('/')) {
+                    const [parts, time] = sanitized.split(' ');
+                    const [day, month, year] = parts.split('/');
+                    sanitized = `${year}-${month}-${day}T${time || '00:00:00'}`;
+                }
+                const parsed = Date.parse(sanitized);
+                return isNaN(parsed) ? Infinity : parsed;
+            } catch (e) {
+                return Infinity;
+            }
+        }
+
         function renderLockedPhase() {
             return `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação da Elofy.</p>
             <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>`;
@@ -324,6 +343,8 @@
 
                 activePlayers.forEach(p => p.total = parseInt(p.total) || 0);
                 const rankingGeral = [...activePlayers].sort((a, b) => b.total - a.total);
+
+                // Em conformidade com o que foi solicitado, aqui entra o merge das funções de tempo.
 
                 // Atualizar KPIs com contagem correta e dinâmica de ativos
                 document.getElementById('kpi-leader-name').innerText = rankingGeral[0]['nome da pessoa'];
