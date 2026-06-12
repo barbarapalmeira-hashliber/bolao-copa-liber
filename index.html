@@ -234,7 +234,7 @@
             <div class="section-title"><i class="fa-solid fa-mountain" style="color: #10b981;"></i> Galeria de Campeões por Fase</div>
             <div class="mountains-row" id="mountains-container">
                 </div>
-        </div>
+        </div> Full
 
         <div class="full-width-col dashboard-section">
             <div class="section-title"><i class="fa-solid fa-medal" style="color: var(--liber-orange);"></i> Recordistas por Tipo de Pergunta (Top 3)</div>
@@ -351,6 +351,23 @@
             return exactKey ? playerObj[exactKey] : playerObj[baseColName + ' tempo'];
         }
 
+        // Função auxiliar para calcular quem venceu em velocidade em mais rodadas de um determinado conjunto
+        function getSpeedWinsCount(playerA, playerB, roundsList, headersArray) {
+            if (!playerA || !playerB) return 0;
+            let a_wins = 0;
+            let b_wins = 0;
+            for (const colName of roundsList) {
+                if (headersArray.includes(colName)) {
+                    const timeA = parseTimestamp(getTimeValue(playerA, headersArray, colName));
+                    const timeB = parseTimestamp(getTimeValue(playerB, headersArray, colName));
+                    if (timeA === Infinity && timeB === Infinity) continue;
+                    if (timeA < timeB) a_wins++;
+                    else if (timeB < timeA) b_wins++;
+                }
+            }
+            return b_wins - a_wins;
+        }
+
         function renderLockedPhase() {
             return `<p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">Aguardando início dos jogos e tabulação da Elofy.</p>
             <table class="ranking-table"><tbody><tr><td style="text-align: center; color: var(--text-muted); padding: 40px;"><i class="fa-solid fa-lock" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i> Rodada não iniciada</td></tr></tbody></table>`;
@@ -384,37 +401,23 @@
                 if(activePlayers.length === 0) throw new Error("Nenhum participante ativo encontrado.");
 
                 activePlayers.forEach(p => p.total = parseInt(p.total) || 0);
-
-                // Lista de controle para mapear e somar vitórias por tempo em caso de empate geral
+                
                 const rodadasDesempateGeral = [
                     'rodada 01', 'rodada 02', 'rodada 03', 
                     'segundas de final', 'oitavas de final', 
                     'quartas de final', 'semifinais', 'final', 'perguntas bonus'
                 ];
 
-                // AJUSTE CRÍTICO: Ordenação Geral (Maiores Pontos -> Quem ganhou em mais rodadas por velocidade)
+                // CORREÇÃO DO RANKING GERAL: Agora usa estritamente quem respondeu mais rápido em mais rodadas acumuladas
                 const rankingGeral = [...activePlayers].sort((a, b) => {
                     if (b.total !== a.total) return b.total - a.total;
-                    
-                    let a_wins = 0;
-                    let b_wins = 0;
-                    
-                    for (const colName of rodadasDesempateGeral) {
-                        if (foundHeaders.includes(colName)) {
-                            const timeA = parseTimestamp(getTimeValue(a, foundHeaders, colName));
-                            const timeB = parseTimestamp(getTimeValue(b, foundHeaders, colName));
-                            
-                            if (timeA === Infinity && timeB === Infinity) continue;
-                            
-                            if (timeA < timeB) {
-                                a_wins++;
-                            } else if (timeB < timeA) {
-                                b_wins++;
-                            }
-                        }
-                    }
-                    if (b_wins !== a_wins) return b_wins - a_wins;
-                    return 0;
+                    return getSpeedWinsCount(a, b, rodadasDesempateGeral, foundHeaders);
+                });
+
+                // Criar mapa ágil para buscar os tempos das pessoas na Base de Pessoas por Nome
+                const playerTimeMap = {};
+                activePlayers.forEach(p => {
+                    playerTimeMap[normalizeKey(p['nome da pessoa'])] = p;
                 });
 
                 // Atualizar KPIs com contagem correta e dinâmica de ativos
@@ -514,6 +517,15 @@
                     { id: 'bonus', label: 'Quem mais acertou: Bônus', icon: 'fa-solid fa-bolt' }
                 ];
 
+                // Dicionário que mapeia quais colunas de tempo da Base de Pessoas devem ser avaliadas em cada categoria de variáveis
+                const varRoundsMap = {
+                    'vencedor': ['rodada 01', 'rodada 02', 'rodada 03', 'segundas de final', 'oitavas de final', 'quartas de final', 'semifinais', 'final', 'perguntas bonus'],
+                    'placar': ['quartas de final', 'semifinais', 'final'],
+                    'mvp': ['semifinais', 'final'],
+                    'goleadores': ['final'],
+                    'bonus': ['perguntas bonus']
+                };
+
                 try {
                     const resVars = await fetch(CSV_VARIAVEIS_URL);
                     const textVars = await resVars.text();
@@ -533,10 +545,9 @@
                                 const sB = parseInt(b['bonus']) || 0;
                                 if (sB !== sA) return sB - sA;
                                 
-                                const timeA = parseTimestamp(getTimeValue(a, parsedVars.headers, 'bonus'));
-                                const timeB = parseTimestamp(getTimeValue(b, parsedVars.headers, 'bonus'));
-                                if (timeA !== timeB) return timeA - timeB;
-                                return 0;
+                                const pA = playerTimeMap[normalizeKey(a['nome da pessoa'])];
+                                const pB = playerTimeMap[normalizeKey(b['nome da pessoa'])];
+                                return getSpeedWinsCount(pA, pB, ['perguntas bonus'], foundHeaders);
                             });
                             document.getElementById('bonus').innerHTML = renderActivePhase(bonusSorted, 'bonus');
                         } else {
@@ -553,7 +564,19 @@
                             const maxVarScore = Math.max(...activeVars.map(p => parseInt(p[t.id]) || 0));
                             
                             if (maxVarScore > 0) {
-                                const top3Vars = [...activeVars].sort((a, b) => (parseInt(b[t.id]) || 0) - (parseInt(a[t.id]) || 0)).slice(0, 3);
+                                // CORREÇÃO EXCLUSIVA DOS RECORDISTAS: Ordenação cruza a pontuação bruta com as vitórias de tempo da Base de Pessoas
+                                const top3Vars = [...activeVars].sort((a, b) => {
+                                    const scoreA = parseInt(a[t.id]) || 0;
+                                    const scoreB = parseInt(b[t.id]) || 0;
+                                    if (scoreB !== scoreA) return scoreB - scoreA;
+                                    
+                                    const playerA = playerTimeMap[normalizeKey(a['nome da pessoa'])];
+                                    const playerB = playerTimeMap[normalizeKey(b['nome da pessoa'])];
+                                    const targetRounds = varRoundsMap[t.id] || [];
+                                    
+                                    return getSpeedWinsCount(playerA, playerB, targetRounds, foundHeaders);
+                                }).slice(0, 3);
+
                                 top3Vars.forEach((player, i) => {
                                     variablesHtml += `
                                     <div class="variable-rank-item">
