@@ -234,7 +234,7 @@
             <div class="section-title"><i class="fa-solid fa-mountain" style="color: #10b981;"></i> Galeria de Campeões por Fase</div>
             <div class="mountains-row" id="mountains-container">
                 </div>
-        </div> Full
+        </div>
 
         <div class="full-width-col dashboard-section">
             <div class="section-title"><i class="fa-solid fa-medal" style="color: var(--liber-orange);"></i> Recordistas por Tipo de Pergunta (Top 3)</div>
@@ -340,18 +340,21 @@
             }
         }
 
-        // Captura o cabeçalho de tempo correto de forma flexível
+        // CORREÇÃO CRÍTICA: Captura exata e livre de erros de substring (Evita que "final" coincida com "quartas de final")
         function getTimeValue(playerObj, headersArray, baseColName) {
             const normalizedBase = normalizeKey(baseColName);
-            if (normalizedBase.includes('bonus')) {
-                const foundBonusKey = headersArray.find(h => h.includes('bonus') && h.includes('tempo'));
-                if (foundBonusKey) return playerObj[foundBonusKey];
+            if (normalizedBase.includes('bonus') || normalizedBase.includes('perguntas bonus')) {
+                const foundBonusKey = headersArray.find(h => h === 'bonus tempo' || (h.includes('bonus') && h.includes('tempo')));
+                return foundBonusKey ? playerObj[foundBonusKey] : playerObj['bonus tempo'];
             }
-            const exactKey = headersArray.find(h => h.includes(normalizedBase) && (h.includes('tempo') || h.includes('data') || h.includes('timestamp')));
-            return exactKey ? playerObj[exactKey] : playerObj[baseColName + ' tempo'];
+            const expectedKey = normalizedBase + ' tempo';
+            if (headersArray.includes(expectedKey)) {
+                return playerObj[expectedKey];
+            }
+            const fallbackKey = headersArray.find(h => h.startsWith(normalizedBase) && h.includes('tempo'));
+            return fallbackKey ? playerObj[fallbackKey] : playerObj[baseColName + ' tempo'];
         }
 
-        // Função auxiliar para calcular quem venceu em velocidade em mais rodadas de um determinado conjunto
         function getSpeedWinsCount(playerA, playerB, roundsList, headersArray) {
             if (!playerA || !playerB) return 0;
             let a_wins = 0;
@@ -408,7 +411,7 @@
                     'quartas de final', 'semifinais', 'final', 'perguntas bonus'
                 ];
 
-                // CORREÇÃO DO RANKING GERAL: Agora usa estritamente quem respondeu mais rápido em mais rodadas acumuladas
+                // Ordenação Geral Corrigida com a busca precisa de tempo
                 const rankingGeral = [...activePlayers].sort((a, b) => {
                     if (b.total !== a.total) return b.total - a.total;
                     return getSpeedWinsCount(a, b, rodadasDesempateGeral, foundHeaders);
@@ -517,7 +520,7 @@
                     { id: 'bonus', label: 'Quem mais acertou: Bônus', icon: 'fa-solid fa-bolt' }
                 ];
 
-                // Dicionário que mapeia quais colunas de tempo da Base de Pessoas devem ser avaliadas em cada categoria de variáveis
+                // Mapeia quais colunas de tempo da Base de Pessoas devem ser avaliadas em cada categoria de variáveis
                 const varRoundsMap = {
                     'vencedor': ['rodada 01', 'rodada 02', 'rodada 03', 'segundas de final', 'oitavas de final', 'quartas de final', 'semifinais', 'final', 'perguntas bonus'],
                     'placar': ['quartas de final', 'semifinais', 'final'],
@@ -564,7 +567,7 @@
                             const maxVarScore = Math.max(...activeVars.map(p => parseInt(p[t.id]) || 0));
                             
                             if (maxVarScore > 0) {
-                                // CORREÇÃO EXCLUSIVA DOS RECORDISTAS: Ordenação cruza a pontuação bruta com as vitórias de tempo da Base de Pessoas
+                                // Recordistas Gerais organizados por pontos e desempatados por vitórias de tempo baseados na aba Base de Pessoas
                                 const top3Vars = [...activeVars].sort((a, b) => {
                                     const scoreA = parseInt(a[t.id]) || 0;
                                     const scoreB = parseInt(b[t.id]) || 0;
